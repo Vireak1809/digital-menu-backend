@@ -41,6 +41,15 @@ const validate_1 = require("../middleware/validate");
 const auth_1 = require("../middleware/auth");
 const rateLimit_1 = require("../middleware/rateLimit");
 const router = (0, express_1.Router)();
+router.get('/setup-status', (0, async_1.asyncHandler)(ctrl.initialAdminSetupStatus));
+router.post('/setup-admin', rateLimit_1.authLimiter, (0, validate_1.validate)({
+    body: zod_1.z.object({
+        name: zod_1.z.string().trim().min(1).max(120),
+        email: zod_1.z.string().trim().email(),
+        password: zod_1.z.string().min(16).max(128),
+        setupKey: zod_1.z.string().min(32).max(512),
+    }),
+}), (0, async_1.asyncHandler)(ctrl.createInitialAdmin));
 router.post('/login', rateLimit_1.authLimiter, (0, validate_1.validate)({ body: zod_1.z.object({ email: zod_1.z.string().email(), password: zod_1.z.string().min(1) }) }), (0, async_1.asyncHandler)(ctrl.login));
 router.post('/refresh', (0, async_1.asyncHandler)(ctrl.refresh));
 router.post('/logout', auth_1.requireAuth, (0, async_1.asyncHandler)(ctrl.logout));

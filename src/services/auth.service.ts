@@ -1,13 +1,54 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma';
 import { env } from '../config/env';
-import { unauthorized } from '../utils/errors';
+import { conflict, forbidden, unauthorized } from '../utils/errors';
 import { signAccessToken, type AccessPayload } from '../middleware/auth';
 
 interface RefreshPayload {
   sub: string;
   tokenVersion: string;
+}
+
+export async function getInitialAdminSetupStatus() {
+  if (!env.FIRST_ADMIN_SETUP_KEY) return { available: false };
+  return { available: (await prisma.user.count()) === 0 };
+}
+
+export async function createInitialAdmin(input: {
+  name: string;
+  email: string;
+  password: string;
+  setupKey: string;
+}) {
+  const configuredKey = env.FIRST_ADMIN_SETUP_KEY;
+  if (!configuredKey) throw forbidden('First admin setup is not enabled');
+
+  const suppliedHash = createHash('sha256').update(input.setupKey).digest();
+  const configuredHash = createHash('sha256').update(configuredKey).digest();
+  if (!timingSafeEqual(suppliedHash, configuredHash)) throw unauthorized('Invalid setup key');
+
+  const passwordHash = await bcrypt.hash(input.password, 10);
+  try {
+    return await prisma.$transaction(async (tx: Pick<typeof prisma, 'user'>) => {
+      if ((await tx.user.count()) !== 0) throw conflict('Initial admin setup is already completed');
+      return tx.user.create({
+        data: {
+          name: input.name.trim(),
+          email: input.email.trim().toLowerCase(),
+          passwordHash,
+          role: 'ADMIN',
+          isActive: true,
+        },
+      });
+    }, { isolationLevel: 'Serializable' });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2034') {
+      throw conflict('Initial admin setup is already completed');
+    }
+    throw error;
+  }
 }
 
 export async function login(email: string, password: string) {

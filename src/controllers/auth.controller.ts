@@ -21,6 +21,15 @@ export async function login(req: Request, res: Response) {
   return ok(res, { accessToken: result.accessToken, user: result.user }, 'Logged in');
 }
 
+export async function initialAdminSetupStatus(_req: Request, res: Response) {
+  return ok(res, await authService.getInitialAdminSetupStatus());
+}
+
+export async function createInitialAdmin(req: Request, res: Response) {
+  await authService.createInitialAdmin(req.body);
+  return ok(res, null, 'Initial admin created');
+}
+
 export async function refresh(req: Request, res: Response) {
   const result = await authService.refresh(req.cookies?.[REFRESH_COOKIE]);
   if (!result) throw unauthorized('Session expired');

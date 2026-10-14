@@ -57,6 +57,7 @@ const schema = zod_1.z.object({
     JWT_REFRESH_SECRET: zod_1.z.string().min(16),
     ACCESS_TOKEN_TTL: zod_1.z.string().default('15m'),
     REFRESH_TOKEN_TTL: zod_1.z.string().default('7d'),
+    FIRST_ADMIN_SETUP_KEY: zod_1.z.string().min(32).optional(),
     CORS_ORIGINS: zod_1.z.string().default('https://digital-menu-f143.onrender.com'),
     PUBLIC_BASE_URL: zod_1.z.string().default('https://digital-menu-f143.onrender.com'),
     UPLOAD_DIR: zod_1.z.string().default('uploads'),

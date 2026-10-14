@@ -8,6 +8,20 @@ import { authLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
+router.get('/setup-status', asyncHandler(ctrl.initialAdminSetupStatus));
+router.post(
+  '/setup-admin',
+  authLimiter,
+  validate({
+    body: z.object({
+      name: z.string().trim().min(1).max(120),
+      email: z.string().trim().email(),
+      password: z.string().min(16).max(128),
+      setupKey: z.string().min(32).max(512),
+    }),
+  }),
+  asyncHandler(ctrl.createInitialAdmin),
+);
 router.post(
   '/login',
   authLimiter,

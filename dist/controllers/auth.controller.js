@@ -34,6 +34,8 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = login;
+exports.initialAdminSetupStatus = initialAdminSetupStatus;
+exports.createInitialAdmin = createInitialAdmin;
 exports.refresh = refresh;
 exports.logout = logout;
 exports.me = me;
@@ -54,6 +56,13 @@ async function login(req, res) {
     const result = await authService.login(email, password);
     res.cookie(REFRESH_COOKIE, result.refreshToken, cookieOptions);
     return (0, response_1.ok)(res, { accessToken: result.accessToken, user: result.user }, 'Logged in');
+}
+async function initialAdminSetupStatus(_req, res) {
+    return (0, response_1.ok)(res, await authService.getInitialAdminSetupStatus());
+}
+async function createInitialAdmin(req, res) {
+    await authService.createInitialAdmin(req.body);
+    return (0, response_1.ok)(res, null, 'Initial admin created');
 }
 async function refresh(req, res) {
     const result = await authService.refresh(req.cookies?.[REFRESH_COOKIE]);
