@@ -31,6 +31,12 @@ function createApp() {
     app.use((0, morgan_1.default)(env_1.env.isProd ? 'combined' : 'dev'));
     // Static uploads
     app.use('/uploads', express_1.default.static(upload_1.uploadDir, { maxAge: '7d' }));
+    app.get('/', (_req, res) => res.json({
+        success: true,
+        data: { status: 'ok', health: '/api/health' },
+        message: 'Digital Menu API is running',
+        errors: null,
+    }));
     app.use('/api', routes_1.default);
     app.use(error_1.notFoundHandler);
     app.use(error_1.errorHandler);

@@ -32,6 +32,15 @@ export function createApp() {
   // Static uploads
   app.use('/uploads', express.static(uploadDir, { maxAge: '7d' }));
 
+  app.get('/', (_req, res) =>
+    res.json({
+      success: true,
+      data: { status: 'ok', health: '/api/health' },
+      message: 'Digital Menu API is running',
+      errors: null,
+    }),
+  );
+
   app.use('/api', routes);
 
   app.use(notFoundHandler);

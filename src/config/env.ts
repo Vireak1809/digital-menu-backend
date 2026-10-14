@@ -22,8 +22,8 @@ const schema = z.object({
   JWT_REFRESH_SECRET: z.string().min(16),
   ACCESS_TOKEN_TTL: z.string().default('15m'),
   REFRESH_TOKEN_TTL: z.string().default('7d'),
-  CORS_ORIGINS: z.string().default('http://localhost:5173'),
-  PUBLIC_BASE_URL: z.string().default('http://localhost:5173'),
+  CORS_ORIGINS: z.string().default('https://digital-menu-f143.onrender.com'),
+  PUBLIC_BASE_URL: z.string().default('https://digital-menu-f143.onrender.com'),
   UPLOAD_DIR: z.string().default('uploads'),
 });
 
